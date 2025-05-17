@@ -1,1 +1,5 @@
-streamlit
+streamlit==1.35.0
+PyPDF2==3.0.1
+requests==2.31.0
+beautifulsoup4==4.12.3
+openai==1.30.1
