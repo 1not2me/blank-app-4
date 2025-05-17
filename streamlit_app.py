@@ -3,16 +3,27 @@ from PyPDF2 import PdfReader
 import requests
 from bs4 import BeautifulSoup
 import re
-import openai
+from openai import OpenAI
 
-# פונקציה לחילוץ טקסט מקובץ PDF
+# חיבור ל-OpenAI עם מפתח מ-Secrets
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+# פונקציה לסיכום טקסט בעזרת GPT (תחביר חדש)
+def summarize_text(text, style="short"):
+    prompt = f"Please summarize the following text in a {style} style:\n\n{text}"
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.5
+    )
+    return response.choices[0].message.content
+
+# חילוץ טקסט מקובץ PDF
 def extract_text_from_pdf(uploaded_file):
     reader = PdfReader(uploaded_file)
     return " ".join(page.extract_text() or "" for page in reader.pages)
 
-# פונקציה לחילוץ טקסט מקישור URL
-
+# חילוץ טקסט מקישור
 def extract_text_from_url(url):
     try:
         response = requests.get(url)
@@ -21,26 +32,13 @@ def extract_text_from_url(url):
     except Exception as e:
         return f"שגיאה בגישה לקישור: {e}"
 
-# פונקציה לניקוי טקסט
-
+# ניקוי טקסט
 def clean_text(text):
     text = re.sub(r'\s+', ' ', text)
     text = re.sub(r'[^\w\s.,!?;:()\[\]]', '', text)
     return text.strip()
 
-# פונקציה לסיכום טקסט בעזרת GPT
-
-def summarize_text(text, style="short"):
-    prompt = f"Please summarize the following text in a {style} style:\n\n{text}"
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.5
-    )
-    return response["choices"][0]["message"]["content"]
-
 # ממשק Streamlit
-
 st.set_page_config(page_title="מערכת סיכום מסמכים")
 st.title("📑 מערכת סיכום מסמכים ושאילת שאלות")
 
