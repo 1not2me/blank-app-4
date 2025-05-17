@@ -3,10 +3,9 @@ from PyPDF2 import PdfReader
 import requests
 from bs4 import BeautifulSoup
 import re
-from openai import OpenAI
+import openai
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# חיבור ל-OpenAI עם מפתח מ-Secrets
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # פונקציה לסיכום טקסט בעזרת GPT (תחביר חדש)
 def summarize_text(text, style="short"):
